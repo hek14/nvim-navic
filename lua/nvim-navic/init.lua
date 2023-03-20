@@ -105,7 +105,8 @@ end
 
 function M.goto_last_context(level)
   level = level and level or vim.v.count1
-  local data = M.get_data[vim.api.nvim_get_current_buf()]
+  local data = M.get_data(vim.api.nvim_get_current_buf())
+  if not data or #data==0 then return end
   local index = #data-level+1
   local target = data[index]
   local curr = vim.api.nvim_win_get_cursor(0)
