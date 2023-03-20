@@ -103,6 +103,32 @@ function M.get_data(bufnr)
 	return ret
 end
 
+function M.goto_last_context(level)
+  level = level and level or vim.v.count1
+  local data = M.get_data[vim.api.nvim_get_current_buf()]
+  local index = #data-level+1
+  local target = data[index]
+  local curr = vim.api.nvim_win_get_cursor(0)
+  while target~=nil do
+    if target.scope['start']['line']<curr[1] then
+      break
+    elseif target.scope['start']['line']==curr[1] and target.scope['start']['character']<curr[2] then
+      break
+    end
+    index = index-1
+    target = data[index]
+  end
+
+  if target == nil then
+    return
+  end
+
+  vim.cmd("normal! m'")
+  vim.api.nvim_win_set_cursor(0,{target.scope['start']['line'],target.scope['start']['character']})
+  vim.cmd("normal! zv")
+end
+
+
 function M.is_available(bufnr)
 	bufnr = bufnr or vim.api.nvim_get_current_buf()
 	return vim.b[bufnr].navic_client_id ~= nil
